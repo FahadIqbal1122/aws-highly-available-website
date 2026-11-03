@@ -36,7 +36,7 @@ Auto Scaling Group (2-4 x t3.micro), Route 53, ACM (HTTPS), CloudWatch
 - **Scale in:** after the traffic stopped, the low alarm fired and the group scaled back from 4 to 2.
 
 ## Demo video
-[Watch the demo](YOUR-VIDEO-LINK)
+[Watch the demo on YouTube](https://youtu.be/UE1kWhR-lLY)
 
 ## Screenshots
 
@@ -71,9 +71,10 @@ Auto Scaling Group (2-4 x t3.micro), Route 53, ACM (HTTPS), CloudWatch
 | `screenshots/` | Evidence from the build and tests |
 
 ## What I learned
-- **Placeholders break shell commands.** Pasting `URL=http://<ALB-DNS-NAME>/` set the URL to just `http://`, because bash reads `<` as input redirection. My load test sent no traffic until I put the real address in and tested it with `curl` first.
-- **Scale-in needs data, not silence.** With zero traffic the ALB publishes no request metrics, so the low alarm stays in "Insufficient data" and the group never scales in. Target tracking treats missing data as unknown, not as quiet.
-- **Timeout vs refused tells you where to look.** `ERR_CONNECTION_TIMED_OUT` means a security group is silently dropping the traffic (here: port 443 on the ALB). "Connection refused" means the traffic arrived but nothing was listening.
+- **Security groups can reference each other.** The web servers allow port 80 only from the load balancer's security group, not from an IP range. The ALB's IPs change over time, so referencing its security group keeps the rule correct without any updates, and the servers stay unreachable from the internet.
+- **Private servers still need a way out.** Servers in private subnets have no public IP, so they install software through a NAT gateway: outbound only, nothing can connect in. That's also why a new server takes a little longer to boot, which matters for the health check grace period. Too short, and Auto Scaling replaces servers before they're ready.
+- **Target tracking is simple to set up but deliberate in how it reacts.** One number (100 requests per server) creates two CloudWatch alarms automatically. Scaling out took about 3 minutes; scaling in is slower on purpose (about 15 minutes of low traffic), and it needs real data. With zero traffic the metric isn't published, so the group won't scale in.
+- **Alias records beat CNAMEs for AWS targets.** A Route 53 Alias works on the root domain (`fahadiqbal.dpdns.org`), follows the load balancer's changing IPs automatically, and its queries are free. The same hosted zone also validated the free ACM certificate through DNS.
 
 ## Cost & clean-up
-Built and deleted the same day; total cost about $[x].
+Built, tested and deleted the same day. Total cost: under $1 (about $0.27 billed so far; AWS charges can take up to a day to appear).
