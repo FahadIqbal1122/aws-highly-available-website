@@ -39,7 +39,29 @@ Auto Scaling Group (2-4 x t3.micro), Route 53, ACM (HTTPS), CloudWatch
 [Watch the demo](YOUR-VIDEO-LINK)
 
 ## Screenshots
-See the [`screenshots`](screenshots) folder: VPC resource map, healthy targets in 2 AZs, the site over HTTPS, Auto Scaling activity history, and the ALB request graph during the load test.
+
+**Custom VPC: 4 subnets across 2 AZs, internet gateway and NAT gateway**
+![VPC resource map](screenshots/01-vpc-resource-map.png)
+
+**Target group: 2 healthy servers, one in each AZ**
+![Target group with 2 healthy targets](screenshots/02-target-group-2-healthy-2-azs.png)
+
+**Website on my own domain over HTTPS**
+![Website on custom domain](screenshots/08-website-https-custom-domain.png)
+
+**Each request is served from a different AZ**
+| Zone a | Zone b |
+|---|---|
+| ![Zone a](screenshots/04-website-zone-a.png) | ![Zone b](screenshots/03-website-zone-b.png) |
+
+**Self-healing: a stopped server is replaced automatically**
+![ASG activity: replacement](screenshots/05-asg-activity-self-healing.png)
+
+**Scale out: the CloudWatch alarm changes desired capacity from 2 to 4**
+![ASG activity: scale out](screenshots/06-asg-activity-scale-out.png)
+
+**Load test: about 6,000 requests, healthy hosts rise to 4**
+![Target group monitoring during the load test](screenshots/07-target-group-monitoring-load-test.png)
 
 ## Files
 | File | What it is |
